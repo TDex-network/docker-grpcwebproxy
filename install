@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+gh_owner=improbable-eng
+gh_repo=grpc-web
+
+case $(uname -m) in
+armv7l) arch="arm" ;;
+x86_64) arch="x86_64" ;;
+*)
+  echo "Architecture $ARCH not supported by the installation script"
+  exit 1
+  ;;
+esac
+
+latest_version=$(wget -qO- https://api.github.com/repos/$gh_owner/$gh_repo/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+build=grpcwebproxy-$latest_version-linux-$arch
+
+wget https://github.com/$gh_owner/$gh_repo/releases/download/$latest_version/$build.zip -O temp.zip
+
+unzip temp.zip && rm temp.zip
+mv dist/$build /grpcwebproxy
